@@ -9,28 +9,23 @@ for (let i = 0; i < pieces.length; i++) {
     const sectionFiches = document.querySelector(".fiches");
     const pieceElement = document.createElement("article");
     const imageElement = document.createElement("img");
-    imageElement.src = pieces[i].image;
+    imageElement.src = article.image;
     const nomElement = document.createElement("h2");
-    nomElement.innerText = pieces[i].nom;
+    nomElement.innerText = article.nom;
     const prixElement = document.createElement("p");
-    prixElement.innerText = `Prix : ${pieces[i].prix} € (${pieces[i].prix < 35 ? "€" : "€€€"})`;
+    prixElement.innerText = `Prix : ${article.prix} € (${article.prix < 35 ? "€" : "€€€"})`;
     const categorieElement = document.createElement("p");
-    categorieElement.innerText = pieces[i].categorie ?? "(aucune catégorie)"; 
+    categorieElement.innerText = article.categorie ?? "(aucune catégorie)";
     const descriptionElement = document.createElement("p");
-    descriptionElement.innerText = pieces[i].description ?? "Pas de description pour le moment.";
+    descriptionElement.innerText = article.description ?? "Pas de description pour le moment.";
     const stockElement = document.createElement("p");
-    stockElement.innerText = pieces[i].disponibilite === true ? "En stock" : "Rupture de stock";
+    stockElement.innerText = article.disponibilite === true ? "En stock" : "Rupture de stock";
 
     sectionFiches.appendChild(pieceElement);
-    sectionFiches.appendChild(imageElement);
-    sectionFiches.appendChild(nomElement);
-    sectionFiches.appendChild(prixElement);
-    sectionFiches.appendChild(categorieElement);
-    sectionFiches.appendChild(descriptionElement);
-    sectionFiches.appendChild(stockElement);
+    pieceElement.appendChild(imageElement);
+    pieceElement.appendChild(nomElement);
+    pieceElement.appendChild(prixElement);
+    pieceElement.appendChild(categorieElement);
+    pieceElement.appendChild(descriptionElement);
+    pieceElement.appendChild(stockElement);
     }
-
-
-
-
-
