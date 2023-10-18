@@ -1,36 +1,52 @@
 // Récupération des pièces depuis le fichier JSON
-const reponse = await fetch("pieces-autos.json");
+
+const reponse = await fetch('pieces-autos.json');
 const pieces = await reponse.json();
 
-for (let i = 0; i < pieces.length; i++) {
+//PIECES
 
-    const article = pieces[i];
+function genererPieces(pieces) {
+    for (let i = 0; i < pieces.length; i++) {
+        const article = pieces[i];
+        const sectionFiches = document.querySelector(".fiches");
+        const pieceElement = document.createElement("article");
 
-    const sectionFiches = document.querySelector(".fiches");
-    const pieceElement = document.createElement("article");
-    const imageElement = document.createElement("img");
-    imageElement.src = article.image;
-    const nomElement = document.createElement("h2");
-    nomElement.innerText = article.nom;
-    const prixElement = document.createElement("p");
-    prixElement.innerText = `Prix : ${article.prix} € (${article.prix < 35 ? "€" : "€€€"})`;
-    const categorieElement = document.createElement("p");
-    categorieElement.innerText = article.categorie ?? "(aucune catégorie)";
-    const descriptionElement = document.createElement("p");
-    descriptionElement.innerText = article.description ?? "Pas de description pour le moment.";
-    const stockElement = document.createElement("p");
-    stockElement.innerText = article.disponibilite === true ? "En stock" : "Rupture de stock";
+        const imageElement = document.createElement("img");
+        imageElement.src = article.image;
 
-    sectionFiches.appendChild(pieceElement);
-    pieceElement.appendChild(imageElement);
-    pieceElement.appendChild(nomElement);
-    pieceElement.appendChild(prixElement);
-    pieceElement.appendChild(categorieElement);
-    pieceElement.appendChild(descriptionElement);
-    pieceElement.appendChild(stockElement);
+        const nomElement = document.createElement("h2");
+        nomElement.innerText = article.nom;
+
+        const prixElement = document.createElement("p");
+        prixElement.innerText = `Prix : ${article.prix} € (${article.prix < 35 ? "€" : "€€€"})`;
+
+        const categorieElement = document.createElement("p");
+        categorieElement.innerText = article.categorie ?? "(aucune catégorie)";
+
+        const descriptionElement = document.createElement("p");
+        descriptionElement.innerText = article.description ?? "Pas de description pour le moment.";
+
+        const stockElement = document.createElement("p");
+        stockElement.innerText = article.disponibilite === true ? "En stock" : "Rupture de stock";
+
+        const avisBouton = document.createElement("button");
+        avisBouton.dataset.id = article.id;
+        avisBouton.textContent = "Afficher les avis";
+
+        sectionFiches.appendChild(pieceElement);
+        pieceElement.appendChild(imageElement);
+        pieceElement.appendChild(nomElement);
+        pieceElement.appendChild(prixElement);
+        pieceElement.appendChild(categorieElement);
+        pieceElement.appendChild(descriptionElement);
+        pieceElement.appendChild(stockElement);
+        pieceElement.appendChild(avisBouton);
     }
+}
 
+genererPieces(pieces);
 
+// BOUTONS //
 
 const boutonTrier = document.querySelector(".btn-trier");
 boutonTrier.addEventListener("click", function () {
@@ -38,7 +54,9 @@ boutonTrier.addEventListener("click", function () {
     piecesOrdonnees.sort(function (a, b) {
         return a.prix - b.prix;
     });
-    console.log(piecesOrdonnees);
+    document.querySelector(".fiches").innerHTML = "";
+    genererPieces(piecesOrdonnees);
+    // console.log(piecesOrdonnees);
 });
 
 const boutonTrierDecroissant = document.querySelector(".btn-trier-decroissant");
@@ -47,7 +65,9 @@ boutonTrierDecroissant.addEventListener("click", function () {
     piecesOrdonnees.sort(function (a, b) {
         return b.prix - a.prix;
     });
-    console.log(piecesOrdonnees);
+    document.querySelector(".fiches").innerHTML = "";
+    genererPieces(piecesOrdonnees);
+    // console.log(piecesOrdonnees);
 });
 
 const boutonFiltrer = document.querySelector(".btn-filtrer");
@@ -55,7 +75,9 @@ boutonFiltrer.addEventListener("click", function () {
     const piecesFiltrees = pieces.filter(function (piece) {
         return piece.prix <= 35;
     });
-    console.log(piecesFiltrees);
+    document.querySelector(".fiches").innerHTML = "";
+    genererPieces(piecesFiltrees);
+    // console.log(piecesFiltrees);
 });
 
 const boutonDescription = document.querySelector(".btn-description");
@@ -63,5 +85,76 @@ boutonDescription.addEventListener("click", function () {
     const piecesFiltrees = pieces.filter(function (piece) {
         return piece.description;
     });
-    console.log(piecesFiltrees)
+    document.querySelector(".fiches").innerHTML = "";
+    genererPieces(piecesFiltrees);
+    // console.log(piecesFiltrees)
 });
+
+// LISTE PIECES ABORDABLES
+
+const noms = pieces.map(piece => piece.nom);
+const abordablesElements = document.createElement("ul");
+
+for (let i = pieces.length - 1; i >= 0; i--) {
+    if (pieces[i].prix > 35) {
+        noms.splice(i, 1)
+    };
+};
+    
+for (let i = 0; i < noms.length; i++) {
+    const nomElement = document.createElement("li");
+    nomElement.innerText = noms[i];
+    abordablesElements.appendChild(nomElement);
+    document.querySelector('.abordables')
+        .appendChild(abordablesElements)
+}
+    
+// LISTE PIECES AVEC DESCRIPTIF
+
+const prix = pieces.map(piece => piece.prix);
+const stock = pieces.map(piece => piece.disponibilite);
+const disponibleElements = document.createElement("ul");
+
+for (let i = pieces.length - 1; i >= 0; i--) {
+    if (pieces[i].disponibilite === false) {
+        stock.splice(i,1);
+    }
+}
+
+for (let i = 0; i < stock.length; i++) {
+    const disponibleElement = document.createElement("li");
+    disponibleElement.innerText = `${noms[i]} - ${prix[i]} €`;
+    disponibleElements.appendChild(disponibleElement);
+    document.querySelector(".disponibles")
+        .appendChild(disponibleElements)
+}
+
+// LISTE PIECES PRIX MAX
+
+const inputPrixMax = document.querySelector("#prix-max");
+inputPrixMax.addEventListener('input', function(){
+    const piecesFiltrees = pieces.filter(function(piece){
+        return piece.prix <= inputPrixMax.value;
+    });
+    document.querySelector(".fiches").innerHTML = "";
+    genererPieces(piecesFiltrees);  
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
